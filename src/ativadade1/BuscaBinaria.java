@@ -3,6 +3,7 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Scanner;
@@ -36,47 +37,29 @@ public class BuscaBinaria {
 
     }
 
-    private String comparaString(String x, String y){
-        String alfabetoAuxiliar = "abcdefghijklmnopqrstuvwxyz";
-
-        for(int i = 0; i < x.length(); i ++){
-            int posicaoA = alfabetoAuxiliar.indexOf(x.toLowerCase().charAt(i));
-            int posicaob = alfabetoAuxiliar.indexOf(y.toLowerCase().charAt(i));
-
-            if(posicaoA != posicaob){
-                if(posicaoA > posicaob){
-                    return "max";
-                }
-                return "min";
-            }
-        }
-        return "equal";
-    }
-
     public void pesquisarCliente(String nome) {
         System.out.println(pesquisaBinariaRec(nome, 0, clientes.size()-1));
     }
 
     private String pesquisaBinariaRec(String nome, int inicio, int fim) {
+        int meio = (inicio + fim) / 2;
+        contCompara++;
+
+        String procurado = Normalizer.normalize(nome, Normalizer.Form.NFD).replaceAll("[^\\p{ASCII}]", "");
+        String atual = Normalizer.normalize(clientes.get(meio)[0], Normalizer.Form.NFD).replaceAll("[^\\p{ASCII}]", "");
+
         if (inicio > fim) {
             return "O nome não existe" + "\n Comparações: " + contCompara ;
         }
 
-        int meio = (inicio + fim) / 2;
-        contCompara++;
-
-        String comparada = comparaString(nome, clientes.get(meio)[0]);
-
-        if (comparada.equals("equal")) {
-            return "Informações: " + Arrays.toString(clientes.get(meio)) + "\n Comparações: " + contCompara ;
+        if(procurado.compareToIgnoreCase(atual) == 0){
+            return "Informações: " + Arrays.toString(clientes.get(meio)) + "\n Comparações: " + contCompara;
         }
 
-
-        contCompara++;
-        if (comparada.equals("min")) {
-            return pesquisaBinariaRec(nome, inicio, meio - 1);
+        if (procurado.compareToIgnoreCase(atual) > 0) {
+            return pesquisaBinariaRec(nome, meio+1, fim);
         } else {
-            return pesquisaBinariaRec(nome, meio + 1, fim);
+            return pesquisaBinariaRec(nome, inicio, meio-1);
         }
     }
 
